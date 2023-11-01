@@ -21,6 +21,8 @@ public class CovidDataProcessor {
     private static final PriorityQueue<Map.Entry<String, Double>> mostFatalDays = new PriorityQueue<>(
             (a, b) -> Double.compare(b.getValue(), a.getValue())
     );
+    private static final ConcurrentHashMap<String, Map.Entry<String, Double>> mostFatalDayPerCountry = new ConcurrentHashMap<>();
+
 
     public CovidDataProcessor(String data) {
         this.data = data;
@@ -68,8 +70,8 @@ public class CovidDataProcessor {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
 
-        System.out.println("\nTop 10 most fatal days:");
-        mostFatalDays.addAll(topFatalDays.values());
+        System.out.println("\nTop 10 most fatal days for individual countries:");
+        mostFatalDays.addAll(mostFatalDayPerCountry.values());
         for (int i = 0; i < 10 && !mostFatalDays.isEmpty(); i++) {
             Map.Entry<String, Double> entry = mostFatalDays.poll();
             System.out.println(entry.getKey() + ": " + entry.getValue());
@@ -104,7 +106,7 @@ public class CovidDataProcessor {
 
     public void processCovidData() {
         try {
-            Thread.sleep(10);
+            Thread.sleep(1);
 
             String[] values = parseCSV(data);
 
@@ -120,7 +122,15 @@ public class CovidDataProcessor {
 
                     Map.Entry<String, Double> currentEntry = new AbstractMap.SimpleEntry<>(key, fatalities);
                     topFatalitiesInOneDay.offer(currentEntry);
+
                     topFatalDays.compute(key, (k, v) -> {
+                        if (v == null || v.getValue() < fatalities) {
+                            return currentEntry;
+                        }
+                        return v;
+                    });
+
+                    mostFatalDayPerCountry.compute(country, (k, v) -> {
                         if (v == null || v.getValue() < fatalities) {
                             return currentEntry;
                         }
@@ -134,6 +144,7 @@ public class CovidDataProcessor {
             e.printStackTrace();
         }
     }
+
 
     public static void main(String[] args) {
         ExecutorService executor = createThreadPool();
