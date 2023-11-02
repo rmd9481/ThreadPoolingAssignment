@@ -1,6 +1,8 @@
-##Covid Data Analysis Tool
+## Covid Data Analysis Tool
 
-###How to run 
+### How to run 
 `cd .\coviddataprocessor\`
+
 `javac .\CovidDataWorker.java .\CovidDataProcessor.java`
+
 `java CovidDataProcessor`
