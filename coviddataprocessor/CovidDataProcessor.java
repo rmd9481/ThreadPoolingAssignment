@@ -46,7 +46,7 @@ public class CovidDataProcessor {
     private static void shutdownExecutor(ExecutorService executor) {
         executor.shutdown();
         while (!executor.isTerminated()) { }
-        System.out.println("All tasks are completed");
+        System.out.println("All tasks are completed!");
     }
 
     private static void printStatistics() {
